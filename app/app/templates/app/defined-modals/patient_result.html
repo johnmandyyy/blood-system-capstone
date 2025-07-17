@@ -1,0 +1,78 @@
+<div class="modal fade" id="result_modal" data-bs-backdrop="static"
+data-bs-keyboard="false" tabindex="-1">
+<div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+
+            <h5 class="modal-title fw-bold">
+                [[ info.TITLE ]]
+            </h5>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div v-if="loading_state.PREDICTION === true"
+                class="text-center mt-4">
+                <h1 class="fa-solid fa-spinner-third fa-spin"></h1>
+                <p class="lead fw-bold text-muted p-0 m-0">Patient Result</p>
+                <p class="text-small fw-bold text-muted p-0 m-0">Loading Patient Results</p>
+            </div>
+
+            <div v-else
+                class="text-center mt-4">
+
+                <span v-if="lists.PREDICTION.length < 1">
+
+                    {% include "app/constants/nodata.html" %}
+                </span>
+                <span v-else>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                              <tr>
+        
+                                <th scope="col">Diagnosis Date</th>
+                                <th scope="col">Smear Image</th>
+                                <th scope="col">Heatmap</th>
+                                <th scope="col">Disease Name</th>
+                                <th scope="col">Occurance %</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr v-for="patient in lists.PREDICTION">
+                                <td>[[patient.date_of_diagnosis]]</td>
+                                <td>
+                                    <img :src="patient.smear_image" class="img-fluid" style="max-width: 128px; min-width: 128px;">
+                                </td>
+                                <td>
+                                    <img :src="patient.generated_heatmap" class="img-fluid" style="max-width: 128px; min-width: 128px;">
+                                </td>
+                                <td>
+                                    [[ patient.predicted_diesease.disease_name ]]
+                                </td>
+                                <td>
+                                    [[ patient.percentage_severity ]] %
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                    </div>
+    
+                </span>
+    
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-primary"
+                :disabled="loading_state.PREDICTION === true"
+                @click="closeModal('result_modal')">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+</div>

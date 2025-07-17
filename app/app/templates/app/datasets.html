@@ -1,0 +1,368 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div id="{{ obj_name }}">
+    <div class="row">
+
+        {% include 'app/constants/universal_modal.html' %}
+        {% include 'app/defined-modals/gallery.html' %}
+        {% include 'app/defined-modals/training.html' %}
+        {% include 'app/defined-modals/confusion_matrix.html' %}
+
+        <h1 class="display-6 fw-bold">
+            <i class="fa-solid fa-brain-circuit"></i> AI Model
+        </h1>
+
+        <p class="lead fw-bold text-muted">
+            View AI model performance and summary.
+        </p>
+        <div class="col-lg-12">
+            <p class="text-small fw-bold text-muted">Date Trained: [[
+                lists.MODELINFO[0].last_trained_state ]]</p>
+            <div class="row mb-2">
+
+                <div class="col-lg-12 mb-2">
+                    <button class="btn btn-primary mb-2"
+                        @click="trainData()">Train Model <i
+                            class="fa-solid fa-dumbbell"></i></button>
+
+                    <button class="btn btn-info mb-2"
+                        @click="openModal('confusion_matrix')">View Confusion
+                        Matrix <i class="fa-solid fa-circle-info"></i></button>
+
+                </div>
+
+                <div class="col-lg-3 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h1 class="lead fw-bold">
+                                    Accuracy <i
+                                        class="fa-solid fa-bullseye"></i>
+                                </h1>
+
+                                <p class="lead fw-bold text-muted">
+                                    [[ lists.MODELINFO && lists.MODELINFO.length
+                                    > 0 && lists.MODELINFO[0].accuracy ?
+                                    lists.MODELINFO[0].accuracy * 100 : '0' ]] %
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h1 class="lead fw-bold">
+                                    Precision <i class="fa-solid fa-check"></i>
+                                </h1>
+
+                                <p class="lead fw-bold text-muted">
+                                    [[ lists.MODELINFO && lists.MODELINFO.length
+                                    > 0 && lists.MODELINFO[0].precision ?
+                                    lists.MODELINFO[0].precision * 100 : '0' ]]
+                                    %
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h1 class="lead fw-bold">
+                                    Recall <i class="fa-solid fa-plus"></i>
+                                </h1>
+
+                                <p class="lead fw-bold text-muted">
+                                    [[ lists.MODELINFO && lists.MODELINFO.length
+                                    > 0 && lists.MODELINFO[0].recall ?
+                                    lists.MODELINFO[0].recall * 100 : '0' ]]
+                                    %
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 mb-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <h1 class="lead fw-bold">
+                                    F1 Score <i
+                                        class="fa-solid fa-hundred-points"></i>
+                                </h1>
+
+                                <p class="lead fw-bold text-muted">
+                                    [[ lists.MODELINFO && lists.MODELINFO.length
+                                    > 0 && lists.MODELINFO[0].f1_score ?
+                                    lists.MODELINFO[0].f1_score * 100 : '0' ]]
+                                    %
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <hr class="my-4" />
+
+        <h1 class="display-6 fw-bold">
+            <i class="fa-solid fa-database"></i> Dataset(s)
+        </h1>
+
+        <p class="lead fw-bold text-muted">
+            Here you can manage the dataset(s), such as add and delete.
+        </p>
+
+        <div class="table-responsive mb-4">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <h5 class="card-title text-muted">List(s) of Diseases that
+                        can be
+                        differentiated by the model itself.</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Here you can add a
+                        class/disease/severity that you want to be predicted
+                        later on.</h6>
+
+                    <button class="btn btn-primary mb-2 mt-2" :disabled="true"
+                        @click="openModal('gallery_modal')">
+                        Add Disease
+                    </button>
+
+                    <button class="btn btn-primary" @click="setFilters()">
+                        [[ mode ]] <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <table class="table">
+
+                        <div v-if="loading_state.DISEASE === true">
+                            {% include 'app/constants/loading.html' %}
+                        </div>
+
+                        <div v-else>
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Severity</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <tr v-for="disease in lists.DISEASE">
+
+                                    <td>[[ disease.id ]]</td>
+                                    <td>[[ disease.disease_name ]]</td>
+                                    <td>[[ disease.description ]]</td>
+
+                                    <td>
+                                        <button class="btn btn-primary"
+                                            @click="viewImages(disease)">
+                                            View Images
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+
+                        </div>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <h1 class="display-6 fw-bold">
+            <i class="fa-solid fa-images"></i> Upload Image(s)
+        </h1>
+
+        <p class="lead fw-bold text-muted">
+            Add Image(s) to Dataset
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <h5 class="card-title text-muted">List(s) of Diseases that
+                    can be
+                    differentiated by the model itself.
+                </h5>
+
+                <h6 class="card-subtitle mb-2 text-muted">Here you can add a
+                    class/disease/severity that you want to be predicted
+                    later on.
+                </h6>
+
+                <br>
+
+                <label class="form-label mb-2">
+                    Select Disease: *
+                </label>
+
+                <select class="form-control mb-2">
+                    <option v-for="disease in lists.DISEASE">
+                        [[ disease.disease_name ]]
+                    </option>
+                </select>
+
+                <div class="mb-3">
+                    <label class="form-label">Select Image:
+                        *</label>
+                    <input class="form-control" type="file" :disabled="true">
+                </div>
+
+                <button class="btn btn-success w-100" :disabled="true">
+                    Upload File
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+new Vue({
+    delimiters: ["[[", "]]"],
+    el: "#" + '{{ obj_name }}',
+
+    data: {
+
+            lists: {},
+            url_models: {},
+            loading_state: {},
+            endpoints: {},
+            info: { MESSAGE: '', TITLE: '' },
+
+        state: {
+            'IS_THUMBNAIL': false,
+            'FILTERS': 0,
+            'SELECTED_DISEASE': null
+        }
+    },
+    computed: {
+
+        mode() {
+            if (this.state.FILTERS === 0) {
+                return 'Filter: All Images'
+            } else if (this.state.FILTERS === 1) {
+                return 'Filter: Training Images'
+            } else if (this.state.FILTERS === 2) {
+                return 'Filter: Validation Images'
+            }
+        },
+
+    },
+    mounted() {
+        initializeModels(this, ['IMAGES', 'DISEASE', 'MODELINFO'])
+        universalGet(this, 'LIST_CREATE', 'DISEASE', 'DISEASE', 'DISEASE')
+        universalGet(this, 'LIST_CREATE', 'MODELINFO', 'MODELINFO', 'MODELINFO')
+        Vue.set(this.loading_state, 'TRAINING', false);
+    },
+    methods: {
+            
+            async trainData () {
+                openModal('training_modal')
+
+                this.loading_state['TRAINING'] = true
+                console.log(this.loading_state)
+                const url = '/api/train-model/'
+                const result = await axios.get(url)
+
+                if (result) {
+                    console.log(result)
+                }
+
+                this.loading_state['TRAINING'] = false
+                universalGet(this, 'LIST_CREATE', 'MODELINFO', 'MODELINFO', 'MODELINFO')
+            },
+
+            setFilters() {
+
+                this.state.FILTERS = this.state.FILTERS + 1
+
+                if (this.state.FILTERS == 3) {
+                    this.state.FILTERS = 0
+                }
+                
+            },
+
+            setMode() {
+                if (this.state.IS_THUMBNAIL === true) {
+                    this.state.IS_THUMBNAIL = false
+                } else {
+                    this.state.IS_THUMBNAIL = true
+                }
+            },
+            // Object Calls.
+            async switchPage (option) {
+
+                var action = ''
+                
+                if (option === 'NEXT') {
+                    action = this.lists.IMAGES.next
+                } else if (option === 'PREVIOUS') {
+                    action = ensurePageParam(this.lists.IMAGES.previous )
+                }
+
+                await universalGet(this, 
+                    'LIST_GET', 
+                    'IMAGES', 
+                    'IMAGES', 
+                    'IMAGES', 
+                    null,
+                    action)
+            },
+
+            async viewImages(prop) {
+
+                this.info.TITLE = prop.disease_name
+                this.state.SELECTED_DISEASE = prop
+
+                let filters = {}
+
+                if (this.state.FILTERS === 0) {
+                    filters = { page: 1, disease: prop.id }
+                } else if (this.state.FILTERS === 1) {
+                    filters = { page: 1, disease: prop.id, used_for: 'Training' }
+                } else if (this.state.FILTERS === 2) {
+                    filters = { page: 1, disease: prop.id, used_for: 'Validation' }
+                }
+
+                await universalGet(this, 
+                    'LIST_GET', 
+                    'IMAGES', 
+                    'IMAGES', 
+                    'IMAGES', 
+                    filters)
+                    
+                openModal('gallery_modal')
+
+            },
+
+    },
+});
+</script>
+{% endblock %}

@@ -1,0 +1,402 @@
+{% extends "app/layout.html" %} {% load static %} {% block content %}
+
+<div id="{{ obj_name }}">
+
+  {% include 'app/constants/universal_modal.html' %}
+  {% include 'app/defined-modals/predicting.html' %}
+  {% include 'app/defined-modals/prediction_results.html' %}
+
+  <div class="row">
+    <h1 class="display-6 fw-bold">
+      <i class="fa-solid fa-user-doctor"></i> Pathologist's Panel
+    </h1>
+
+    <p class="lead fw-bold text-muted">
+      Here you can manage the patient and get the remarks of the smear images.
+    </p>
+
+    <p class="lead fw-bold">Attending Physician: {{ request.user.first_name }}
+      {{ request.user.last_name }}</p>
+
+    <p class="text-small ">Please note that the names are case sensitive.</p>
+
+    <div class="col-lg-4">
+      <label class="label mb-2">First Name:</label>
+      <input
+        type="text"
+        v-model="props.PATIENT.first_name"
+        class="form-control mb-2"
+        :disabled="state.SELECTED_PATIENT" />
+    </div>
+
+    <div class="col-lg-4">
+      <label class="label mb-2">Middle Name:</label>
+      <input
+        type="text"
+        v-model="props.PATIENT.middle_name"
+        class="form-control mb-2"
+        :disabled="state.SELECTED_PATIENT" />
+    </div>
+
+    <div class="col-lg-4">
+      <label class="label mb-2">Last Name:</label>
+      <input
+        type="text"
+        v-model="props.PATIENT.last_name"
+        class="form-control mb-2"
+        :disabled="state.SELECTED_PATIENT" />
+    </div>
+
+    <div class="col-lg-12">
+      <button class="btn btn-primary mb-2 mt-2" @click="filterPatient()">
+        Search Patient(s) <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+      <button class="btn btn-danger mb-2 mt-2" @click="clearFilters()">
+        Clear Filters <i class="fa-solid fa-trash"></i>
+      </button>
+
+      <div class="mb-3">
+        <label class="form-label">Select Image:*</label>
+        <input type="file" @change="handleFileUpload"
+          :disabled="state.SELECTED_PATIENT === false"
+          class="form-control mb-3">
+        <button class="btn btn-success" @click="uploadFile()">
+          Upload Image
+        </button>
+      </div>
+    </div>
+
+    <div class="col-lg-12">
+      <hr class="my-4" />
+    </div>
+
+    <div class="col-lg-12">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="table-responsive">
+            <div v-if="loading_state.PATIENT">
+              {% include 'app/constants/loading.html' %}
+            </div>
+            <div v-else>
+              <table class="table" v-if="lists.PATIENT">
+                <thead>
+                  <tr>
+                    <th scope="col">Patient ID #</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Action(s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="patient in lists.PATIENT.results">
+                    <th scope="row">[[ patient.id ]]</th>
+                    <td>
+                      [[ patient.first_name ]] [[ patient.middle_name ]] [[
+                      patient.last_name ]]
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-warning"
+                        @click="selectPatient(patient)">
+                        Select Patient <i class="fa-solid fa-eye"> </i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Navigation Buttons -->
+          <div v-if="lists.PATIENT" class="d-flex justify-content-end mt-2">
+            <button
+              class="btn btn-primary me-2"
+              :disabled="lists.PATIENT.previous === null"
+              @click="switchPage('PREVIOUS')">
+              <i class="fa-solid fa-left"></i> Previous
+            </button>
+            <button
+              class="btn btn-primary me-2"
+              :disabled="lists.PATIENT.next === null"
+              @click="switchPage('NEXT')">
+              Next <i class="fa-solid fa-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  new Vue({
+    delimiters: ["[[", "]]"],
+    el: "#" + "{{ obj_name }}",
+    data: {
+      lists: {},
+      url_models: {},
+      loading_state: {},
+      endpoints: {},
+      info: { MESSAGE: "", TITLE: "", ORIGINAL_SMEAR_IMAGE: "", SMEAR_IMAGE: "", HEATMAP_IMAGE: "", SEGMENTED_IMAGE: "", PRESCRIPTION: "", SYMPTOMS: "", PERCENTAGE_SEVERITY: "" },
+      state: {
+        SELECTED_PATIENT: false,
+        SELECTED_FILE: null,
+        PATIENT_ID: null,
+        PREDICTION_ID: null
+      },
+      props: {
+        
+        PATIENT: {
+          id: "",
+          first_name: "",
+          middle_name: "",
+          last_name: "",
+          birth: "",
+        },
+
+        PREDICTING_RESULTS: {
+          message: '',
+          heatmap_location: '',
+          segmented_location: '',
+          smear_image: '',
+          original_smear_image: '',
+          prescription: '',
+          percentage_severity: ''
+        },
+
+        PRESCRIPTION: {
+          notes: ''
+        }
+      },
+    },
+    computed: {},
+    mounted() {
+      initializeModels(this, ["PATIENT", "PREDICTION"]);
+      universalGet(this, "LIST_GET", "PATIENT", "PATIENT", "PATIENT", {
+        page: 1,
+      });
+
+      // Vue.set(this.props.PRESCRIPTION, {
+      //     notes: ''
+      //   }, {})
+    },
+    methods: {
+      async saveNotes() {
+        this.props.PRESCRIPTION.notes = this.info.PRESCRIPTION
+        const result = await universalPatch(this, 'GET_UPDATE_DESTROY', 
+                'PREDICTION', 'PREDICTION', 'PREDICTION', 
+                'PREDICTION_ID', 'PRESCRIPTION')
+
+        this.clearFilters()
+        closeModal('results_modal')
+      },
+      async selectPatient(prop) {
+        this.props.PATIENT = prop;
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          this.getFilters()
+        );
+
+        this.state.SELECTED_PATIENT = true;
+      },
+
+      handleFileUpload(event) {
+        const file = event.target.files[0];
+
+        if (!file) {
+          this.state.SELECTED_FILE = null;
+          return;
+        }
+
+        const validImageTypes = ['image/jpeg', 'image/png'];
+        const maxSizeMB = 100;
+
+        if (!validImageTypes.includes(file.type)) {
+          this.info.TITLE = 'Invalid File';
+          this.info.MESSAGE = 'Only image files are allowed (jpg, png).';
+          openModal('message_modal');
+          this.state.SELECTED_FILE = null;
+          event.target.value = ''; // Clear file input
+          return;
+        }
+
+        if (file.size > maxSizeMB * 1024 * 1024) {
+          this.info.TITLE = 'File Too Large';
+          this.info.MESSAGE = `File must be less than ${maxSizeMB} MB.`;
+          openModal('message_modal');
+          this.state.SELECTED_FILE = null;
+          event.target.value = '';
+          return;
+        }
+
+        // If valid, store the file
+        this.state.SELECTED_FILE = file;
+      },
+      
+      async uploadFile() {
+
+        if (!this.state.SELECTED_FILE) {
+          this.info.TITLE = 'Warning'
+          this.info.MESSAGE = 'No File Selected.'
+          openModal('message_modal')
+          return
+        }
+  
+
+        // this.clearFilters() // Initial Clear
+        console.log("Selected file:", this.state.SELECTED_FILE);
+
+        // Example: Uploading using FormData
+        let formData = new FormData();
+
+        formData.append("smear_image", this.state.SELECTED_FILE);
+        formData.append("notes", '')
+        formData.append("is_done", true)
+        formData.append("patient", this.props.PATIENT.id)
+
+        // Perform the API request
+        axios.defaults.headers.common['X-CSRFToken'] = getCookie('csrftoken')
+
+        this.loading_state['PREDICTION'] = true
+
+        const response = await axios.post(
+        '/api/list-create/prediction/',
+        formData,
+          {
+              headers: {
+              'Content-Type': 'multipart/form-data',
+              },
+          }
+        );
+
+        if (response) {
+          const prediction_id = response.data.id
+          const result = await this.predictDisease(prediction_id)
+          this.props.PREDICTING_RESULTS = result.data
+          this.state.PREDICTION_ID = prediction_id
+          
+        }
+        // this.clearFilters()
+      },
+      // Object Calls.
+      async predictDisease(id) {
+        axios.defaults.headers.common['X-CSRFToken'] = getCookie('csrftoken')
+        this.loading_state['PREDICTION'] = true
+        openModal('prediction_modal')
+        const response = await axios.post('/api/predict-disease/', {id: id})
+        if (response) {
+          this.loading_state['PREDICTION'] = false
+          closeModal('prediction_modal')
+          this.info.TITLE = 'Predicted'
+          this.info.MESSAGE = response.data.message
+          this.info.ORIGINAL_SMEAR_IMAGE = response.data.original_smear_image
+          this.info.PERCENTAGE_SEVERITY = response.data.percentage_severity
+          this.info.SMEAR_IMAGE = response.data.smear_image
+          this.info.SEGMENTED_IMAGE = response.data.segmented_location
+          this.info.SYMPTOMS = response.data.patient_symptoms
+          this.info.HEATMAP_IMAGE = response.data.heatmap_location
+          this.info.PRESCRIPTION = response.data.prescription
+          openModal('results_modal')
+        }
+        return response
+      },
+      async switchPage(option) {
+        var action = "";
+
+        if (option === "NEXT") {
+          action = this.lists.PATIENT.next;
+        } else if (option === "PREVIOUS") {
+          action = ensurePageParam(this.lists.PATIENT.previous);
+        }
+
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          null,
+          action
+        );
+      },
+
+      async clearFilters() {
+        this.info.TITLE = ''
+        this.info.MESSAGE = ''
+        this.info.SMEAR_IMAGE = []
+        this.info.HEATMAP_IMAGE = ''
+        this.info.SEGMENTED_IMAGE = ''
+        this.info.SYMPTOMS = ''
+        this.info.ORIGINAL_SMEAR_IMAGE = ''
+        this.info.PERCENTAGE_SEVERITY = ''
+        this.info.PRESCRIPTION = ''
+        this.state.SELECTED_FILE = null
+        this.props.PREDICTING_RESULTS = null
+        this.state.PREDICTION_ID = null
+        this.props.PRESCRIPTION.notes = this.info.PRESCRIPTION
+
+        this.props.PATIENT = {
+          id: "",
+          first_name: "",
+          middle_name: "",
+          last_name: "",
+          birth: "",
+        };
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          this.getFilters()
+        );
+        this.state.SELECTED_PATIENT = false;
+      },
+
+      getFilters() {
+        const filters = { page: 1 };
+
+        if (this.props.PATIENT.first_name !== "") {
+          filters["first_name"] = this.props.PATIENT.first_name;
+        }
+
+        if (
+          this.props.PATIENT.middle_name !== "" &&
+          this.props.PATIENT.middle_name !== null
+        ) {
+          filters["middle_name"] = this.props.PATIENT.middle_name;
+        }
+
+        if (this.props.PATIENT.last_name !== "") {
+          filters["last_name"] = this.props.PATIENT.last_name;
+        }
+
+        console.log(filters);
+        return filters;
+      },
+
+      async filterPatient() {
+        this.state.SELECTED_PATIENT = false;
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          this.getFilters()
+        );
+        if (this.lists.PATIENT) {
+          if (this.lists.PATIENT.count < 1) {
+            this.info.MESSAGE = "Oh no! No results found.";
+            this.info.TITLE = "Notification";
+            openModal("message_modal");
+            this.clearFilters();
+          }
+        }
+      },
+    },
+  });
+</script>
+{% endblock %}

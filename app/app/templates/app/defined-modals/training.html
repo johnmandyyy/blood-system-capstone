@@ -1,0 +1,47 @@
+ <div class="modal fade" id="training_modal" data-bs-backdrop="static"
+    data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">
+                    [[ info.TITLE ]]
+                </h5>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div v-if="loading_state.TRAINING === true"
+                    class="text-center mt-4">
+
+                    <h1 class="fa-solid fa-spinner-third fa-spin"></h1>
+                    <p class="lead fw-bold text-muted p-0 m-0">Training in
+                        Progress</p>
+                    <p class="text-small fw-bold text-muted p-0 m-0">Please do
+                        not exit during training as the background is running
+                        tasks.</p>
+                </div>
+
+                <div v-else
+                    class="text-center mt-4">
+                    <h1 class="fa-solid fa-circle-check"></h1>
+                    <p class="lead fw-bold text-muted p-0 m-0">Training is Done
+                        Progress</p>
+                    <p class="text-small fw-bold text-muted p-0 m-0">The AI
+                        model has been trained successfully.</p>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary"
+                    :disabled="loading_state.TRAINING === true"
+                    @click="closeModal('training_modal')">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

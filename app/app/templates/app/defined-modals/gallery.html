@@ -1,0 +1,58 @@
+ <div class="modal fade" id="gallery_modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">
+                    [[ info.TITLE ]]
+                </h5>
+
+                <button class="btn">
+                    <h4 class="fa-solid fa-circle-xmark text-muted">
+                    </h4>
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div v-if="state.IS_THUMBNAIL">
+                    {% include 'app/sections/modals/thumbnail_view.html' %}
+                </div>
+
+                <div v-else>
+                    {% include 'app/sections/modals/table_view.html' %}
+                </div>
+
+                Total Result:
+                <span v-if="lists.IMAGES">
+                    [[ lists.IMAGES.count ]]
+                </span>
+                Image
+                <br>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary" @click="setMode()">
+                    Switch View <i class="fa-solid fa-lightbulb"></i>
+                </button>
+
+                <button v-if="lists.IMAGES" class="btn btn-info"
+                    :disabled="lists.IMAGES.previous === null"
+                    @click="switchPage('PREVIOUS')"><i
+                        class="fa-solid fa-arrow-left"></i> Previous
+                </button>
+
+                <button v-if="lists.IMAGES" class="btn btn-info"
+                    :disabled="lists.IMAGES.next === null"
+                    @click="switchPage('NEXT')">Next <i
+                        class="fa-solid fa-arrow-right"></i>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>

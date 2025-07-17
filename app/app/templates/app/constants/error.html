@@ -1,0 +1,33 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<center>
+    <h1 class="display-1 fw-bold lh-1 mb-3"
+        style="font-size: 10rem; color: var(--bs-warning)">
+        <i class="fa-regular fa-triangle-exclamation"></i>
+    </h1>
+
+    <h1 class="display-1 mb-3">
+        We'll be back soon!
+    </h1>
+
+    <p class="lead">
+        Sorry for the inconvenience, there was a problem at the moment.
+    </h1>
+
+    <p class="lead">
+        Error Message: {{ message }}
+    </p>
+
+    <div class="row" hidden>
+        <div class="col col-lg-12">
+            <button class="btn btn-danger">
+                Report an Issue?
+            </button>
+        </div>
+    </div>
+
+</center>
+
+{% endblock %}

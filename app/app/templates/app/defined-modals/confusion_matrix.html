@@ -1,0 +1,54 @@
+ <div class="modal fade" id="confusion_matrix">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">
+                    Confusion Matrix
+                </h5>
+
+            </div>
+
+            <div class="modal-body">
+                <div class="text-center">
+                    <span v-if="lists.MODELINFO">
+                        <div v-for="element in lists.MODELINFO">
+                            <div
+                                v-for="item in JSON.parse(element.json_info).data">
+                                <p class="lead fw-bold">
+                                    [[ item ]]
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="text-small text-muted">
+                            From top to bottom and left to right, the shown
+                            classes are
+                        </p>
+
+                        <div v-for="element in lists.MODELINFO">
+                            <div
+                                v-for="each in JSON.parse(element.json_info).indices">
+                                <p
+                                    class="text-small p-0 m-0 fw-bold text-muted">
+                                    [[ each ]]
+                                </p>
+                            </div>
+                        </div>
+
+                    </span>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-primary"
+                    @click="closeModal('confusion_matrix')">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

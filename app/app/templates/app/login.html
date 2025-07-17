@@ -1,0 +1,130 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div id="login">
+    {% include 'app/constants/universal_modal.html' %}
+    {% include 'app/defined-modals/register_account.html' %}
+    <div class="row align-items-center g-lg-5 py-5">
+        <div class="col-lg-7 text-center text-lg-start">
+            <h1 class="display-4 fw-bold lh-1 mb-3">{{ app_name }}</h1>
+            <p class="col-lg-10 fs-4">{{ app_desc }}</p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+
+            <div class="p-4 p-md-5 border rounded-3 bg-light">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control"
+                        id="floatingInput"
+                        placeholder="Username" name="username"
+                        v-model="username">
+                    <label for="floatingInput">Email Address / Username</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="password" class="form-control"
+                        id="floatingPassword" placeholder="Password"
+                        name="password" v-model="password">
+                    <label for="floatingPassword">Password</label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary mb-2" type="submit"
+                    @click="login()">Log-In</button>
+
+                    <button class="w-100 btn btn-lg btn-info mb-2" type="submit"
+                    @click="openModal('register_modal')">Register</button>
+
+                <hr class="my-4">
+                
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    new Vue({
+        delimiters: ["[[", "]]"],
+        el: "#login",
+
+        data: {
+            username: "",
+            password: "",
+            reenter_password: "",
+            email: "",
+            first_name: "",
+            last_name: "",
+
+            info: {
+                "TITLE": "",
+                "MESSAGE": ""
+            }
+        },
+        mounted() {
+
+            if (document.querySelector('#login')) {
+                console.log("Mounted login page.")
+            }
+            
+        },
+        methods: {
+            async registerAccount() {
+
+                const url = '/api/account-section/'
+
+                if (this.password === this.reenter_password) {
+
+                    const result = await axios.post(url, {
+                        "username": this.username,
+                        "password": this.password,
+                        "email": this.email,
+                        "first_name": this.first_name,
+                        "last_name": this.last_name
+                    })
+
+                    if (result) {
+                        this.info.TITLE = 'Account Registration'
+                        this.info.MESSAGE = 'Account was registed successfully. Please wait for the admin to accept the request.'
+                        closeModal('register_modal')
+                        openModal('message_modal')
+                    } else {
+                        this.info.TITLE = 'Account Registration'
+                        this.info.MESSAGE = 'There was a problem in creating your account.'
+
+                        this.username = ''
+                        this.password = ''
+                        this.email = ''
+                        this.first_name = ''
+                        this.last_name = ''
+                        this.reenter_password = ''
+
+                        closeModal('register_modal')
+                        openModal('message_modal')
+                    }
+
+                } else {
+                    this.info.TITLE = 'Account Registration'
+                    this.info.MESSAGE = 'Password do not match.'
+                    closeModal('register_modal')
+                    openModal('message_modal')  
+                }
+
+
+            },
+
+            async login() {
+                const result = axios.post("/api/login/", {
+                    "username": this.username,
+                    "password": this.password
+                }).then(response => {
+                    if (response.status === 200) {
+                        localStorage.setItem('token', response.data.token)
+                        window.location.href = "/home"
+                    } else {}
+                }).catch(error => {});
+
+            }
+        },
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div id="{{ obj_name }}">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <h1 class="display-6 fw-bold">
+                <i class="fa-solid fa-user"></i> User Management(s)
+            </h1>
+
+            <p class="lead fw-bold text-muted">
+                Here you can manage the account of the users.
+            </p>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+
+                        <div v-if="loading_state.PATHOLOGIST">
+                            {% include 'app/constants/loading.html' %}
+                        </div>
+                        <div v-else>
+                            <table class="table" v-if="lists.PATHOLOGIST">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"># ID</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="pathologist in lists.PATHOLOGIST.results">
+                                        <th scope="row">[[ pathologist.user.id
+                                            ]]</th>
+                                        <td>[[ pathologist.user.first_name ]] [[
+                                            pathologist.user.last_name ]]</td>
+                                        <td>[[ pathologist.user.username ]]</td>
+                                        <td>[[ pathologist.user.email ]]</td>
+                                        <td>
+
+                                            <span
+                                                v-if="pathologist.user.is_active === true">
+                                                <button class="btn btn-danger"
+                                                    @click="activate(pathologist.user)">Deactivate
+                                                    <i
+                                                        class="fa-solid fa-circle-xmark"></i></button>
+                                            </span>
+
+                                            <span v-else>
+                                                <button class="btn btn-success"
+                                                    @click="activate(pathologist.user)">Activate
+                                                    <i
+                                                        class="fa-solid fa-circle-check"></i></button>
+                                            </span>
+
+                                            <!-- <button class="btn btn-info" @click="activate(pathologist.user)">
+
+                                                <span
+                                                    v-if="pathologist.user.is_active === true">
+
+                                                    Deactivate
+
+                                                    <i
+                                                        class="fa-solid fa-circle-xmark"></i>
+                                                </span>
+
+                                                <span v-else>
+                                                    Activate
+                                                    <i
+                                                        class="fa-solid fa-circle-check"></i>
+                                                </span>
+
+                                            </button> -->
+
+                                            <button class="btn btn-warning"
+                                                :disabled="true" :hidden="true"
+                                                @click="updatePathologist(pathologist)">
+                                                Edit <i
+                                                    class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            <button class="btn btn-danger"
+                                                :disabled="true" :hidden="true">
+                                                Delete <i
+                                                    class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div v-if="lists.PATHOLOGIST"
+                                class="d-flex justify-content-end mt-2">
+                                <button class="btn btn-primary me-2"
+                                    :disabled="lists.PATHOLOGIST.previous === null"
+                                    @click="switchPage('PREVIOUS')">
+                                    <i class="fa-solid fa-left"></i> Previous
+                                </button>
+                                <button class="btn btn-primary me-2"
+                                    :disabled="lists.PATHOLOGIST.next === null"
+                                    @click="switchPage('NEXT')">
+                                    Next <i class="fa-solid fa-right"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+new Vue({
+    delimiters: ["[[", "]]"],
+    el: "#" + '{{ obj_name }}',
+    data: {
+        lists: {},
+        url_models: {},
+        loading_state: {},
+        endpoints: {},
+        info: { MESSAGE: '', TITLE: '' },
+        state: {
+            'USER_ID': null
+        },
+        props: {
+            'USER': null
+        }
+    },
+    computed: {},
+    mounted() {
+        if (document.querySelector("#" + '{{ obj_name }}')) {
+            console.log("Mounted " + '{{ obj_name }}' + " page.")
+        }
+        initializeModels(this, ['PATHOLOGIST', 'USER'])
+        universalGet(this, 'LIST_GET', 'PATHOLOGIST', 'PATHOLOGIST', 'PATHOLOGIST', {page: 1})
+        universalGet(this, 'LIST_GET', 'USER', 'USER', 'USER', {page: 1})
+    },
+    methods: {
+        // Object Calls.
+        async switchPage (option) {
+
+            var action = ''
+            
+            if (option === 'NEXT') {
+                action = this.lists.PATHOLOGIST.next
+            } else if (option === 'PREVIOUS') {
+                action = ensurePageParam(this.lists.PATHOLOGIST.previous )
+            }
+
+            await universalGet(this, 
+                'LIST_GET', 
+                'PATHOLOGIST', 
+                'PATHOLOGIST', 
+                'PATHOLOGIST', 
+                null,
+                action)
+        },
+
+        async activate(user) {
+            this.props.USER = user
+            if (user.is_active === true) {
+                this.props.USER['is_active'] = false
+            }
+            else {
+                this.props.USER['is_active'] = true
+            }
+            
+            this.state['USER_ID'] = user.id
+            await universalPatch(this, 'GET_UPDATE_DESTROY', 
+                'USER', 'USER', 'USER', 
+                'USER_ID', 'USER')
+        },
+
+        async updatePathologist(prop) {
+            this.state.USER_ID = prop.user.id
+            this.props.USER = prop.user
+
+            await universalPatch(this, 'GET_UPDATE_DESTROY', 
+                'USER', 'USER', 'USER', 
+                'USER_ID', 'USER')
+
+            await universalGet(this, 'LIST_GET', 'PATHOLOGIST', 'PATHOLOGIST', 'PATHOLOGIST', {page: 1})
+            
+        }
+    },
+});
+</script>
+{% endblock %}

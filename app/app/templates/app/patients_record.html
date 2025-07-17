@@ -1,0 +1,353 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div id="{{ obj_name }}">
+
+    <div class="row">
+
+        {% include 'app/constants/universal_modal.html' %}
+
+        <h1 class="display-6 fw-bold"><i class="fa-solid fa-users-medical"></i>
+            View Patient Record: *
+        </h1>
+
+        <p class="lead fw-bold text-muted">
+            Here you can view the patient's result record.
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <label class="label mb-2 mt-2">
+                    First Name: *
+                </label>
+
+                <input type="text" v-model="props.PATIENT.first_name"
+                    class="form-control mb-2" disabled />
+
+                <label class="label mb-2">
+                    Middle Name: (Optional)
+                </label>
+
+                <input type="text" v-model="props.PATIENT.middle_name"
+                    class="form-control mb-2" disabled />
+
+                <label class="label mb-2">
+                    Last Name: *
+                </label>
+
+                <input type="text" v-model="props.PATIENT.last_name"
+                    class="form-control mb-2" disabled />
+
+                <label class="label mb-2">
+                    Birth Date: *
+                </label>
+
+                <input type="date" v-model="props.PATIENT.birth"
+                    class="form-control mb-4" disabled />
+            </div>
+
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+
+                    <div v-if="loading_state.PREDICTION">
+                        {% include 'app/constants/loading.html' %}
+                    </div>
+                    <div v-else>
+                        <table class="table" v-if="lists.PREDICTION">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Predicted Disease</th>
+                                    <th scope="col">Percentage Severity</th>
+                                    <th scope="col">Original Smear Image</th>
+                                    <th scope="col">Enhanced Smear Image</th>
+                                    <th scope="col">Segmented Smear Image</th>
+                                    <th scope="col">Generated Heatmap</th>
+                                    <th scope="col">Patient's Symptoms</th>
+                                    <th scope="col">Notes</th>
+                                    <th scope="col">Action(s)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="preds in lists.PREDICTION.results">
+                                    <th scope="row">[[ preds.date_of_diagnosis
+                                        ]]</th>
+
+                                    <td>
+                                        [[
+                                        preds.predicted_diesease.disease_name
+                                        ]]
+                                    </td>
+                                    <td>[[ preds.percentage_severity ]] %</td>
+
+                                    <td>
+                                        <img class="img-fluid"
+                                            style="max-width: 128px; max-height: 128px;"
+                                            :src="preds.original_location">
+                                    </td>
+                                    <td>
+                                        <img class="img-fluid"
+                                            style="max-width: 128px; max-height: 128px;"
+                                            :src="preds.smear_image">
+                                    </td>
+                                    <td>
+                                        <img class="img-fluid"
+                                            style="max-width: 128px; max-height: 128px;"
+                                            :src="preds.segmented_location">
+                                    </td>
+
+                                    <td>
+                                        <img class="img-fluid"
+                                            style="max-width: 128px; max-height: 128px;"
+                                            :src="preds.generated_heatmap">
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            v-if="preds.patient_symptoms !== null">
+                                            [[ preds.patient_symptoms ]]
+                                        </span>
+                                        <span v-else>
+                                            N/A
+                                        </span>
+                                    </td>
+                                    <td>[[ preds.notes ]]</td>
+                                    <td>
+                                        <button class="btn btn-primary"
+                                            disabled>
+                                            <i class="fa-solid fa-download"></i>
+                                            Download Result(s) / E-Prescription
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- Navigation Buttons -->
+                <div v-if="lists.PREDICTION"
+                    class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-primary me-2"
+                        :disabled="lists.PREDICTION.previous === null"
+                        @click="switchPage('PREVIOUS')">
+                        <i class="fa-solid fa-left"></i> Previous
+                    </button>
+                    <button class="btn btn-primary me-2"
+                        :disabled="lists.PREDICTION.next === null"
+                        @click="switchPage('NEXT')">
+                        Next <i class="fa-solid fa-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+new Vue({
+    delimiters: ["[[", "]]"],
+    el: "#" + '{{ obj_name }}',
+    data: {
+
+        loading_state: {},
+        lists: {},
+        url_models: {},
+        endpoints: {},
+
+        state: {
+            'PATIENT_UPDATE': false,
+            'PATIENT_ID': null,
+        },
+
+        props: {
+            'PATIENT': {
+                "first_name": null,
+                "middle_name": '',
+                "last_name": null,
+                "birth": null
+            }
+        },
+
+        info: {
+            'MESSAGE': 'Sample Message',
+            'TITLE': 'Sample Title'
+        },
+
+    },
+    async mounted() {
+        initializeModels(this, ['PATIENT', 'PREDICTION'])
+        this.getUrlParameters()
+        await universalGet(this, 'LIST_GET', 'PATIENT', 'PATIENT', 'PATIENT', {page: 1, id: this.state.PATIENT_ID})
+        this.updatePatient(this.lists.PATIENT.results[0])
+        await universalGet(this, 'LIST_GET', 'PREDICTION', 'PREDICTION', 'PREDICTION', {page: 1, patient: this.state.PATIENT_ID})
+    },
+    methods: {
+        
+        getUrlParameters() {
+            const path = window.location.pathname; // "/patients-record/63/"
+            const parts = path.split('/').filter(Boolean); // ['patients-record', '63']
+            
+            if (parts.length >= 2) {
+                this.state.PATIENT_ID = parts[1]; // index 1 holds the ID
+            } else {
+                console.warn("Could not extract patient ID from URL.");
+            }
+        },
+        
+        async clearFilters() {
+        this.info.TITLE = ''
+        this.info.MESSAGE = ''
+        this.props.PATIENT = {
+                "first_name": null,
+                "middle_name": '',
+                "last_name": null,
+                "birth": null
+            };
+
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          this.getFilters()
+        );
+        this.state.SELECTED_PATIENT = false;
+      },
+
+        async filterPatient() {
+            this.state.SELECTED_PATIENT = false;
+            await universalGet(
+            this,
+            "LIST_GET",
+            "PATIENT",
+            "PATIENT",
+            "PATIENT",
+            this.getFilters()
+            );
+            if (this.lists.PATIENT) {
+            if (this.lists.PATIENT.count < 1) {
+                this.info.MESSAGE = "Oh no! No results found.";
+                this.info.TITLE = "Notification";
+                openModal("message_modal");
+                this.clearFilters();
+            }
+            }
+        },
+
+        getFilters() {
+        const filters = { page: 1, id: this.state.PATIENT_ID };
+
+        if (this.props.PATIENT.first_name !== "" && this.props.PATIENT.first_name !== null) {
+          filters["first_name"] = this.props.PATIENT.first_name;
+        }
+
+        if (
+          this.props.PATIENT.middle_name !== "" &&
+          this.props.PATIENT.middle_name !== null
+        ) {
+          filters["middle_name"] = this.props.PATIENT.middle_name;
+        }
+
+        if (this.props.PATIENT.last_name !== "" && this.props.PATIENT.last_name !== null) {
+          filters["last_name"] = this.props.PATIENT.last_name;
+        }
+
+        return filters;
+      },
+        
+        setInfo(title, message) {
+            this.info.MESSAGE = message
+            this.info.TITLE = title
+        },
+
+        clearPatientForm() {
+
+            this.props.PATIENT.first_name = null
+            this.props.PATIENT.middle_name = ''
+            this.props.PATIENT.last_name = null
+            this.props.PATIENT.birth = null
+            this.state.PATIENT_ID = null
+
+        },
+
+        updatePatient(property) {
+            this.state.PATIENT_UPDATE = true // Set Mark as True to Enable Updating
+            this.props.PATIENT = property
+            this.state.PATIENT_ID = property.id
+        },
+
+        async deletePatient(props) {
+
+            this.state.PATIENT_ID = props.id
+            const result = await universalDelete(this,
+            'GET_UPDATE_DESTROY',
+            'PATIENT',
+            'PATIENT',
+            'PATIENT', 'PATIENT_ID')
+
+            if (result) {
+                this.setInfo('Notification', 'Patient was removed from the records.')
+                openModal('message_modal')
+            }
+            
+        },
+
+        async savePatient() {
+
+            if (this.state.PATIENT_UPDATE === true) {
+
+                const result = await universalPatch(this, 'GET_UPDATE_DESTROY', 
+                'PATIENT', 'PATIENT', 'PATIENT', 
+                'PATIENT_ID', 'PATIENT')
+                
+                if (result) {
+                    this.setInfo('Notification', 'Successful update.')
+                    openModal('message_modal')
+                    this.clearPatientForm()
+                }
+
+            } else {
+
+                const result = await universalPost(this, 'LIST_CREATE', 'PATIENT', null, null, this.props.PATIENT)
+                
+                if (result) {
+                    this.setInfo('Notification', 'New patient was recorded.')
+                    openModal('message_modal')        
+                }
+
+                this.clearPatientForm()
+            }
+
+            this.state.PATIENT_UPDATE = false // Set Mark as False so whenever save is pressed it will just insert.
+        },
+
+        // Object Calls.
+        async switchPage (option) {
+
+            var action = ''
+            
+            if (option === 'NEXT') {
+                action = this.lists.PREDICTION.next
+            } else if (option === 'PREVIOUS') {
+                action = ensurePageParam(this.lists.PREDICTION.previous )
+            }
+
+            await universalGet(this, 'LIST_GET', 'PREDICTION', 'PREDICTION', 'PREDICTION', null, action)
+       
+        },
+
+    },
+});
+</script>
+{% endblock %}

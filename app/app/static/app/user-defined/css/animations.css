@@ -1,0 +1,130 @@
+.modal {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  }
+  @-webkit-keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+  }
+  @keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+  } 
+
+
+ .column {
+      animation: slide-in 0.5s ease-in-out;
+      -webkit-animation: slide-in 0.5s ease-in-out;
+    }
+
+    /* Button Animation */
+    .button {
+      animation: fade-in 0.5s ease-in-out;
+      -webkit-animation: fade-in 0.5s ease-in-out;
+    }
+
+    /* Header Animation */
+    h1, h2, h3, h4, h5, h6 {
+      animation: scale-up 0.5s ease-in-out;
+      -webkit-animation: scale-up 0.5s ease-in-out;
+    }
+
+    /* Paragraph Animation */
+    .p {
+      animation: slide-up 0.5s ease-in-out;
+      -webkit-animation: slide-up 0.5s ease-in-out;
+    }
+
+    /* Table Animation */
+    .table {
+      animation: fade-in 0.5s ease-in-out;
+      -webkit-animation: fade-in 0.5s ease-in-out;
+    }
+
+    /* Card Animation */
+    .card {
+      animation: pop-up 0.5s ease-in-out;
+      -webkit-animation: pop-up 0.5s ease-in-out;
+    }
+
+    /* Card Body Animation */
+    .card-content {
+      animation: slide-in 0.5s ease-in-out;
+      -webkit-animation: slide-in 0.5s ease-in-out;
+    }
+
+    /* Keyframes */
+    @keyframes slide-in {
+      0% { transform: translateX(-20px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes scale-up {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes slide-up {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes pop-up {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Webkit for Safari and Chrome */
+    @-webkit-keyframes slide-in {
+      0% { -webkit-transform: translateX(-20px); opacity: 0; }
+      100% { -webkit-transform: translateX(0); opacity: 1; }
+    }
+
+    @-webkit-keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @-webkit-keyframes scale-up {
+      0% { -webkit-transform: scale(0.8); opacity: 0; }
+      100% { -webkit-transform: scale(1); opacity: 1; }
+    }
+
+    @-webkit-keyframes slide-up {
+      0% { -webkit-transform: translateY(20px); opacity: 0; }
+      100% { -webkit-transform: translateY(0); opacity: 1; }
+    }
+
+    @-webkit-keyframes pop-up {
+      0% { -webkit-transform: scale(0.8); opacity: 0; }
+      100% { -webkit-transform: scale(1); opacity: 1; }
+    }
+
+
+    /* Scrollbar Track */
+    ::-webkit-scrollbar-track {
+        background-color: #f5f5f5;
+    }
+
+    /* Scrollbar Handle */
+    ::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 10px;
+        border: 3px solid #f5f5f5;
+    }
+
+    /* Scrollbar Handle on Hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }
+
+    

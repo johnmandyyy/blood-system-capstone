@@ -1,0 +1,168 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div id="{{ obj_name }}">
+
+    <div class="row">
+
+    </div>
+
+</div>
+
+<script>
+
+new Vue({
+    
+    delimiters: ["[[", "]]"],
+    el: "#" + '{{ obj_name }}',
+    
+    data: {
+
+            lists: {},
+            url_models: {},
+            loading_state: {},
+            endpoints: {},
+            info: { MESSAGE: '', TITLE: '' },
+        
+    },
+
+    mounted() {
+        if (document.querySelector("#" + '{{ obj_name }}')) {
+            console.log("Mounted " + '{{ obj_name }}' + " page.")
+        }
+
+    },
+
+    methods: {
+
+        async get() {
+
+            const authToken = localStorage.getItem('token')
+            const url = '';
+
+            try {
+
+                const result = await axios.get(url, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (result) {
+                    console.log(result)
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+
+        },
+
+        async post() {
+
+            const authToken = localStorage.getItem('token')
+            const url = '';
+
+            try {
+                
+                const payload = { key1: "value1", key2: "value2" };
+                const result = await axios.post(url, payload, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (result) {
+                    console.log(result)
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+            
+        },
+
+        async put() {
+
+            const authToken = localStorage.getItem('token')
+            const url = '';
+
+            try {
+                
+                const payload = { key1: "value1", key2: "value2" };
+                const result = await axios.put(url, payload, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (result) {
+                    console.log(result)
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+            
+        },
+
+        async patch() {
+
+            const authToken = localStorage.getItem('token')
+            const url = '';
+
+            try {
+                
+                const payload = { key1: "value1", key2: "value2" };
+                const result = await axios.patch(url, payload, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (result) {
+                    console.log(result)
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+            
+        },
+
+        async delete() {
+
+            const authToken = localStorage.getItem('token')
+            const url = '';
+
+            try {
+                
+                const payload = { key1: "value1", key2: "value2" };
+                const result = await axios.delete(url, payload, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (result) {
+                    console.log(result)
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+            
+        },
+        
+    },
+});
+
+</script>
+
+{% endblock %}

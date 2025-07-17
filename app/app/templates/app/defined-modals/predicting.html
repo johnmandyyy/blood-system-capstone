@@ -1,0 +1,45 @@
+<div class="modal fade" id="prediction_modal" data-bs-backdrop="static"
+data-bs-keyboard="false" tabindex="-1">
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+
+            <h5 class="modal-title fw-bold">
+                [[ info.TITLE ]]
+            </h5>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div v-if="loading_state.PREDICTION === true"
+                class="text-center mt-4">
+
+                <h1 class="fa-solid fa-spinner-third fa-spin"></h1>
+                <p class="lead fw-bold text-muted p-0 m-0">Predicting in Progress</p>
+                <p class="text-small fw-bold text-muted p-0 m-0">Please do
+                    not exit during predicting as the background is running
+                    tasks.</p>
+            </div>
+
+            <div v-else
+                class="text-center mt-4">
+                <h1 class="fa-solid fa-circle-check"></h1>
+                <p class="lead fw-bold text-muted p-0 m-0">Prediction is Done</p>
+                <p class="text-small fw-bold text-muted p-0 m-0">Prediction is done.</p>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-primary"
+                :disabled="loading_state.PREDICTION === true"
+                @click="closeModal('prediction_modal')">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+</div>

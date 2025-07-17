@@ -1,0 +1,35 @@
+<div class="table-responsive">
+
+    <div v-if="loading_state.IMAGES === true">
+        {% include 'app/constants/loading.html' %}
+    </div>
+
+    <div v-else>
+        <table v-if="lists.IMAGES" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">File Name</th>
+                    <th scope="col">Used For</th>
+                    <th scope="col">Action(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="test in lists.IMAGES.results">
+                    <th scope="row">[[ test.id ]]</th>
+                    <td class="text-muted">[[ test.fname ]]</td>
+                    <td class="text-muted">[[ test.used_for ]]</td>
+                    <td>
+                        <a :href="test.location">
+                            <button class="btn btn-info w-100">
+                                View
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

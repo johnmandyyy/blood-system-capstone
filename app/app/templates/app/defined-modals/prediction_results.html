@@ -1,0 +1,96 @@
+<div class="modal fade" id="results_modal" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    [[ info.TITLE ]]
+                </h5>
+
+                <button class="btn">
+                    <p class="fa-solid fa-circle-xmark">
+
+                    </p>
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="text-center">
+
+                    <p class="lead">
+                        [[ info.MESSAGE ]]
+                    </p>
+
+                    <p class="lead">
+                        Patient Smear Image: *
+                    </p>
+
+                    <img class="img-fluid mb-2" :src="info.ORIGINAL_SMEAR_IMAGE"
+                        style="min-width: 256px; max-width: 256px;">
+
+                    <p class="lead">
+                        Auto Enhanced Patient Smear Image: *
+                    </p>
+
+                    <img class="img-fluid mb-2" :src="info.SMEAR_IMAGE"
+                        style="min-width: 256px; max-width: 256px;">
+
+                    <p class="lead">
+                        Segmented Smear Image: *
+                    </p>
+
+                    <img class="img-fluid mb-2" :src="info.SEGMENTED_IMAGE"
+                        style="min-width: 256px; max-width: 256px;">
+
+                    <p class="lead">
+                        Heatmap Image: *
+                    </p>
+
+                    <img class="img-fluid mb-2" :src="info.HEATMAP_IMAGE"
+                        style="min-width: 256px; max-width: 256px;">
+
+                </div>
+
+                <br>
+                <p class="lead">
+                    Percentage Severity: *
+                </p>
+
+                <p class="text">
+                    [[ info.PERCENTAGE_SEVERITY ]] %
+                </p>
+
+                <br>
+                <p class="lead">
+                    Patient Symptoms: *
+                </p>
+
+                <p class="text">
+                    [[ info.SYMPTOMS ]]
+                </p>
+
+                [[ info.PRESCRIPTION ]]
+                <p class="lead">
+                    Prescription / Notes: *
+                </p>
+
+                <textarea class="form-control" :value="info.PRESCRIPTION"
+                    v-model="info.PRESCRIPTION">
+                </textarea>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-warning" @click="saveNotes()">
+                    Save Notes and Prescription <i
+                        class="fa-solid fa-floppy-disk"></i>
+                </button>
+                <button @click="closeModal('results_modal')" type="button"
+                    class="btn btn-primary">Close <i
+                        class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+</div>

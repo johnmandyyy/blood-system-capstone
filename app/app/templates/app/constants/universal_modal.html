@@ -1,0 +1,28 @@
+ <div class="modal fade" id="message_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    [[ info.TITLE ]]
+                </h5>
+
+                <button class="btn">
+                    <p class="fa-solid fa-circle-xmark">
+
+                    </p>
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+                [[ info.MESSAGE ]]
+            </div>
+
+            <div class="modal-footer">
+                <button @click="closeModal('message_modal')" type="button"
+                    class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

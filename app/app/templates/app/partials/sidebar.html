@@ -1,0 +1,67 @@
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar"
+    aria-labelledby="offcanvasNavbarLabel">
+    <div class="offcanvas-header">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <div class="text-center">
+            <h1 class="display-3"><i class="fa-solid fa-circle-user"></i></h1>
+            <p class="lead">Welcome, {{ request.user }}!</p>
+        </div>
+
+        <ul class="navbar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'home' %}">
+                    <i class="fa-solid fa-house p-3"></i>Home
+                </a>
+            </li>
+
+            {% if request.user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'datasets' %}">
+                    <i class="fa-solid fa-database p-3"></i>Datasets
+                </a>
+            </li>
+            {% endif %}
+
+            {% if request.user.is_superuser == False %}
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'patients' %}">
+                    <i class="fa-solid fa-clipboard-medical p-3"></i>Patients
+                </a>
+            </li>
+            {% endif %}
+
+            {% if request.user.is_superuser == False %}
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'pathologist' %}">
+                    <i class="fa-solid fa-user-doctor p-3"></i>Pathologist Panel
+                </a>
+            </li>
+            {% endif %}
+
+            {% if request.user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'administration' %}">
+                    <i class="fa-solid fa-user-tie p-3"></i>Admin Panel
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket p-3"></i>Sign-out
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

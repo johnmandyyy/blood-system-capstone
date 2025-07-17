@@ -1,0 +1,469 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div id="{{ obj_name }}">
+
+    <div class="row">
+
+        {% include 'app/constants/universal_modal.html' %}
+
+        <h1 class="display-6 fw-bold"><i class="fa-solid fa-users-medical"></i>
+            Patient(s)
+        </h1>
+
+        <p class="lead fw-bold text-muted">
+            Here you can add and manage patient's information.
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="lead fw-bold">Basic Information: *</p>
+                <label class="label mb-2 mt-2">
+                    First Name: *
+                </label>
+
+                <input type="text" v-model="props.PATIENT.first_name"
+                    class="form-control mb-2" />
+
+                <label class="label mb-2">
+                    Middle Name: (Optional)
+                </label>
+
+                <input type="text" v-model="props.PATIENT.middle_name"
+                    class="form-control mb-2" />
+
+                <label class="label mb-2">
+                    Last Name: *
+                </label>
+
+                <input type="text" v-model="props.PATIENT.last_name"
+                    class="form-control mb-2" />
+
+                <label class="label mb-2">
+                    Birth Date: *
+                </label>
+
+                <input type="date" v-model="props.PATIENT.birth"
+                    class="form-control mb-4" />
+
+                <p class="lead fw-bold">Patient's Symptoms: *</p>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox" v-model="props.PATIENT.fatigue"
+                        class="form-check-input" id="fatigue">
+                    <label for="fatigue" class="form-check-label">Feeling
+                        unusually tired or fatigued</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                        v-model="props.PATIENT.persistent_fever"
+                        class="form-check-input" id="persistent_fever">
+                    <label for="persistent_fever"
+                        class="form-check-label">Persistent or unexplained
+                        fevers</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox" v-model="props.PATIENT.weight_loss"
+                        class="form-check-input" id="weight_loss">
+                    <label for="weight_loss"
+                        class="form-check-label">Unintentional weight
+                        loss</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox" v-model="props.PATIENT.night_sweats"
+                        class="form-check-input" id="night_sweats">
+                    <label for="night_sweats" class="form-check-label">Night
+                        sweats or chills</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                        v-model="props.PATIENT.general_unwell"
+                        class="form-check-input" id="general_unwell">
+                    <label for="general_unwell" class="form-check-label">General
+                        feeling of being unwell</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                        v-model="props.PATIENT.frequent_infections"
+                        class="form-check-input" id="frequent_infections">
+                    <label for="frequent_infections"
+                        class="form-check-label">Frequent infections</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox" v-model="props.PATIENT.pale_skin"
+                        class="form-check-input" id="pale_skin">
+                    <label for="pale_skin" class="form-check-label">Pale skin or
+                        looking more pale than usual</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                        v-model="props.PATIENT.bone_joint_pain"
+                        class="form-check-input" id="bone_joint_pain">
+                    <label for="bone_joint_pain"
+                        class="form-check-label">Unexplained bone or joint
+                        pain</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input type="checkbox" v-model="props.PATIENT.swelling"
+                        class="form-check-input" id="swelling">
+                    <label for="swelling" class="form-check-label">Swelling in
+                        neck, underarms, or abdomen</label>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input type="checkbox"
+                        v-model="props.PATIENT.shortness_of_breath"
+                        class="form-check-input" id="shortness_of_breath">
+                    <label for="shortness_of_breath"
+                        class="form-check-label">Shortness of breath or rapid
+                        heartbeat</label>
+                </div>
+
+                <button class="btn btn-success" @click="savePatient()">
+
+                    <span v-if="state.PATIENT_UPDATE === true">
+                        Save Changes <i class="fa-solid fa-floppy-disk"></i>
+                    </span>
+                    <span v-else>
+                        Add Patient <i class="fa-solid fa-plus"></i>
+                    </span>
+
+                </button>
+
+                <button class="btn btn-primary" @click="filterPatient()">
+                    Search Patient <i
+                        class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="lead fw-bold">Select Patient: *</p>
+                <div class="table-responsive">
+
+                    <div v-if="loading_state.PATIENT">
+                        {% include 'app/constants/loading.html' %}
+                    </div>
+                    <div v-else>
+
+                        <div class="row m-2" :hidden="true">
+
+                            <div class="col-lg-4">
+                                <label class="label mb-2">First Name:</label>
+                                <input
+                                    type="text"
+                                    v-model="props.PATIENT.first_name"
+                                    class="form-control mb-2"
+                                    :disabled="state.SELECTED_PATIENT" />
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label class="label mb-2">Middle Name:</label>
+                                <input
+                                    type="text"
+                                    v-model="props.PATIENT.middle_name"
+                                    class="form-control mb-2"
+                                    :disabled="state.SELECTED_PATIENT" />
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label class="label mb-2">Last Name:</label>
+                                <input
+                                    type="text"
+                                    v-model="props.PATIENT.last_name"
+                                    class="form-control mb-2"
+                                    :disabled="state.SELECTED_PATIENT" />
+                            </div>
+
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary mb-2">Filter
+                                    Search</button>
+                            </div>
+
+                        </div>
+                        <table class="table" v-if="lists.PATIENT">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Patient ID #</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Action(s)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="patient in lists.PATIENT.results">
+                                    <th scope="row">[[ patient.id ]]</th>
+                                    <td>[[ patient.first_name ]] [[
+                                        patient.middle_name ]] [[
+                                        patient.last_name
+                                        ]]</td>
+                                    <td>
+
+                                        <button class="btn btn-warning"
+                                            @click="updatePatient(patient)">
+                                            Edit <i
+                                                class="fa-solid fa-pen-to-square">
+                                            </i>
+                                        </button>
+
+                                        <button class="btn btn-danger"
+                                            @click="deletePatient(patient)">
+                                            Delete <i
+                                                class="fa-solid fa-trash">
+                                            </i>
+                                        </button>
+
+                                        <button class="btn btn-primary"
+                                            @click="navigateRecord(patient)">
+                                            View Records <i
+                                                class="fa-solid fa-eye"></i>
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- Navigation Buttons -->
+                <div v-if="lists.PATIENT"
+                    class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-primary me-2"
+                        :disabled="lists.PATIENT.previous === null"
+                        @click="switchPage('PREVIOUS')">
+                        <i class="fa-solid fa-left"></i> Previous
+                    </button>
+                    <button class="btn btn-primary me-2"
+                        :disabled="lists.PATIENT.next === null"
+                        @click="switchPage('NEXT')">
+                        Next <i class="fa-solid fa-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+new Vue({
+    delimiters: ["[[", "]]"],
+    el: "#" + '{{ obj_name }}',
+    data: {
+
+        loading_state: {},
+        lists: {},
+        url_models: {},
+        endpoints: {},
+
+        state: {
+            'PATIENT_UPDATE': false,
+            'PATIENT_ID': null,
+        },
+
+        props: {
+
+            'PATIENT': {
+                "first_name": null,
+                "middle_name": null,
+                "last_name": null,
+                "birth": null,
+                "fatigue": null,
+                "persistent_fever": null,
+                "weight_loss": null,
+                "night_sweats": null,
+                "general_unwell": null,
+                "frequent_infections": null,
+                "pale_skin": null,
+                "bone_joint_pain": null,
+                "swelling": null,
+                "shortness_of_breath": null,
+                "date_updated": null
+            }
+        },
+
+        info: {
+            'MESSAGE': 'Sample Message',
+            'TITLE': 'Sample Title'
+        },
+
+    },
+    mounted() {
+        initializeModels(this, ['PATIENT'])
+        universalGet(this, 'LIST_GET', 'PATIENT', 'PATIENT', 'PATIENT', {page: 1})
+    },
+    methods: {
+        navigateRecord(patient) {
+            const id = patient.id
+            window.location.href = '/patients-record/' + id + '/'
+        },
+        async clearFilters() {
+        this.info.TITLE = ''
+        this.info.MESSAGE = ''
+
+        this.props.PATIENT = {
+                "first_name": null,
+                "middle_name": '',
+                "last_name": null,
+                "birth": null
+            };
+
+        await universalGet(
+          this,
+          "LIST_GET",
+          "PATIENT",
+          "PATIENT",
+          "PATIENT",
+          this.getFilters()
+        );
+        this.state.SELECTED_PATIENT = false;
+      },
+
+        async filterPatient() {
+            this.state.SELECTED_PATIENT = false;
+            await universalGet(
+            this,
+            "LIST_GET",
+            "PATIENT",
+            "PATIENT",
+            "PATIENT",
+            this.getFilters()
+            );
+            if (this.lists.PATIENT) {
+            if (this.lists.PATIENT.count < 1) {
+                this.info.MESSAGE = "Oh no! No results found.";
+                this.info.TITLE = "Notification";
+                openModal("message_modal");
+                this.clearFilters();
+            }
+            }
+        },
+
+        getFilters() {
+        const filters = { page: 1 };
+
+        if (this.props.PATIENT.first_name !== "" && this.props.PATIENT.first_name !== null) {
+          filters["first_name"] = this.props.PATIENT.first_name;
+        }
+
+        if (
+          this.props.PATIENT.middle_name !== "" &&
+          this.props.PATIENT.middle_name !== null
+        ) {
+          filters["middle_name"] = this.props.PATIENT.middle_name;
+        }
+
+        if (this.props.PATIENT.last_name !== "" && this.props.PATIENT.last_name !== null) {
+          filters["last_name"] = this.props.PATIENT.last_name;
+        }
+
+        return filters;
+      },
+        
+        setInfo(title, message) {
+            this.info.MESSAGE = message
+            this.info.TITLE = title
+        },
+
+        clearPatientForm() {
+
+            this.props.PATIENT.first_name = null
+            this.props.PATIENT.middle_name = ''
+            this.props.PATIENT.last_name = null
+            this.props.PATIENT.birth = null
+            this.state.PATIENT_ID = null
+
+        },
+
+        updatePatient(property) {
+
+            this.state.PATIENT_UPDATE = true // Set Mark as True to Enable Updating
+            this.props.PATIENT = property
+            this.state.PATIENT_ID = property.id
+
+        },
+
+        async deletePatient(props) {
+
+            this.state.PATIENT_ID = props.id
+            const result = await universalDelete(this,
+            'GET_UPDATE_DESTROY',
+            'PATIENT',
+            'PATIENT',
+            'PATIENT', 'PATIENT_ID')
+
+            if (result) {
+                this.setInfo('Notification', 'Patient was removed from the records.')
+                openModal('message_modal')
+            }
+            
+        },
+
+        async savePatient() {
+
+            if (this.state.PATIENT_UPDATE === true) {
+
+                const result = await universalPatch(this, 'GET_UPDATE_DESTROY', 
+                'PATIENT', 'PATIENT', 'PATIENT', 
+                'PATIENT_ID', 'PATIENT')
+                
+                console.log(props.PATIENT)
+                if (result) {
+                    this.setInfo('Notification', 'Successful update.')
+                    openModal('message_modal')
+                    this.clearPatientForm()
+                }
+
+            } else {
+
+                const result = await universalPost(this, 'LIST_CREATE', 'PATIENT', null, null, this.props.PATIENT)
+                
+                if (result) {
+                    this.setInfo('Notification', 'New patient was recorded.')
+                    openModal('message_modal')        
+                }
+
+                this.clearPatientForm()
+            }
+
+            this.state.PATIENT_UPDATE = false // Set Mark as False so whenever save is pressed it will just insert.
+        },
+
+        // Object Calls.
+        async switchPage (option) {
+
+            var action = ''
+            
+            if (option === 'NEXT') {
+                action = this.lists.PATIENT.next
+            } else if (option === 'PREVIOUS') {
+                action = ensurePageParam(this.lists.PATIENT.previous )
+            }
+
+            await universalGet(this, 
+                'LIST_GET', 
+                'PATIENT', 
+                'PATIENT', 
+                'PATIENT', 
+                null,
+                action)
+        },
+
+    },
+});
+</script>
+{% endblock %}
