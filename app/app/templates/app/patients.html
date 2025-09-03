@@ -47,6 +47,14 @@
                 <input type="date" v-model="props.PATIENT.birth"
                     class="form-control mb-4" />
 
+                <label class="label mb-2">
+                    Email Address: (Optional / Otherwise Sent to
+                    Pathologist's Email Address)
+                </label>
+
+                <input type="text" v-model="props.PATIENT.email"
+                    class="form-control mb-2" />
+
                 <p class="lead fw-bold">Patient's Symptoms: *</p>
 
                 <div class="form-check mb-2">
@@ -292,7 +300,8 @@ new Vue({
                 "bone_joint_pain": null,
                 "swelling": null,
                 "shortness_of_breath": null,
-                "date_updated": null
+                "date_updated": null,
+                "email": null
             }
         },
 
@@ -319,7 +328,8 @@ new Vue({
                 "first_name": null,
                 "middle_name": '',
                 "last_name": null,
-                "birth": null
+                "birth": null,
+                "email": null
             };
 
         await universalGet(

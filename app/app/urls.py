@@ -12,6 +12,7 @@ from app.constants import app_constants
 from rest_framework.schemas import get_schema_view
 from django.views.generic import TemplateView as TV
 from app.defined_api.cnn_api import Training, Prediction
+from app.defined_api.emailing import EmailingAPI
 
 import app.constants.url_constants as URLConstants
 list_create_patterns = URLConstants.GenericAPI.list_create_patterns
@@ -58,6 +59,7 @@ api_patterns = [
     path("api/train-model/", Training.as_view(), name="train-model"),
     path("api/predict-disease/", Prediction.as_view(), name="prediction"),
     path("api/account-section/", AccountSection.as_view(), name="account-section"),
+    path("api/send-email/", EmailingAPI.as_view(), name="emailing-api")
 ]
 
 template_patterns = [
@@ -70,6 +72,9 @@ template_patterns = [
     path("admin/", admin.site.urls),
     path("logout/", MainView.user_logout, name="logout"),
     path("login/", MainView.login, name="login"),
+    path("profile/", MainView.profile, name="profile"),
+    path("prescription/<int:id>/", MainView.prescription, name="prescription"),
+    path("download_prescription/<int:id>/", MainView.download_prescription, name="download_prescription")
 ]
 
 urlpatterns = template_patterns + api_patterns +  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

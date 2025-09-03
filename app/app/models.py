@@ -84,6 +84,7 @@ class Patient(models.Model):
     middle_name = models.CharField(max_length=255, null = True, default = None)
     last_name = models.CharField(max_length=255, null = False)
     birth = models.DateField(default = None)
+    email = models.TextField(default = None, null = True)
 
     # General Questions
     fatigue = models.BooleanField(default=False, help_text="Feeling unusually tired or fatigued?")
@@ -112,6 +113,7 @@ class Pathologist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null = True)
     suffixes = models.TextField(default = None, null = True)
     e_signature = models.FileField(upload_to='pathologist_signature', null = True)
+    license_no = models.TextField(default = None, null = True)
 
     def __str__(self):
         return f'{self.user}'
@@ -129,3 +131,4 @@ class Prediction(models.Model):
     original_location = models.TextField(default = None, null = True)
     segmented_location = models.TextField(default = None, null = True)
     patient_symptoms = models.TextField(default = None, null = True)
+    pathologist = models.ForeignKey(Pathologist, on_delete=models.SET_NULL, null = True, default = None)

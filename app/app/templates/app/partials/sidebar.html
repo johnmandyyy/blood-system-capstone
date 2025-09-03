@@ -47,6 +47,15 @@
             </li>
             {% endif %}
 
+            {% if request.user.is_superuser == False %}
+            <li class="nav-item">
+                <a class="nav-link fw-normal text-muted"
+                    href="{% url 'profile' %}">
+                    <i class="fa-solid fa-user p-3"></i>My Profile
+                </a>
+            </li>
+            {% endif %}
+
             {% if request.user.is_superuser %}
             <li class="nav-item">
                 <a class="nav-link fw-normal text-muted"

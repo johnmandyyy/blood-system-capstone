@@ -6,10 +6,12 @@ from app.models import ModelInfo
 from datetime import datetime
 import json
 from app.models import Prediction as PredictionTable
+from app.models import Pathologist
 from rest_framework.response import Response
 from app.models import Disease
 import random
 from app.helpers.symptoms_helper import SymptomsHelper
+from app.models import User
 
 class Prediction(APIView):
 
@@ -40,13 +42,19 @@ class Prediction(APIView):
         symptoms.get_remarks(pk) # Generate a descriptive symptoms.
         description = symptoms.generate_description()
         severity = Xception.get_severity()
+
+        pathologist_object = Pathologist.objects.all().get(
+            user = User.objects.get(id = request.user.pk)
+        )
+
         patient.update(
             generated_heatmap = heatmap_location,
             predicted_diesease = Disease.objects.get(disease_name = predicted_disease),
             percentage_severity = severity,
             original_location = original_location,
             segmented_location = segmented_location,
-            patient_symptoms = description
+            patient_symptoms = description,
+            pathologist = pathologist_object
             )
         
         indications = ''

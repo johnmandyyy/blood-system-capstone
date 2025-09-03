@@ -1,10 +1,13 @@
 from django.shortcuts import redirect
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 import app.constants.template_constants as Templates
 from django.contrib.auth import logout, authenticate, login
 from app.helpers import authentication
 from app.defined_api.cnn_api import CNN
-
+import pdfkit
+from app.defined_api.emailing import Emailing
+from app.data.prescriptions import Prescription
+from app.defined_api.check_internet import Pinger
 # Data Access Layer
 from app.data.patient import PatientRecord
 
@@ -14,6 +17,70 @@ class TemplateView:
     def __init__(self):
         pass
 
+    def profile(self, request):
+        """Renders the profile page """
+
+        assert isinstance(request, HttpRequest)
+        if not request.user.is_authenticated:
+            return redirect("login")
+        
+        return Templates.PROFILE.render_page(request)
+
+    def prescription(self, request, id):
+        """ Renders the prescription page. """
+        
+        P = Prescription(id)
+        records = P._get_prescription_record()
+        
+        return Templates.PRESCRIPTION.addContext(records).render_page(request)
+
+    def download_prescription(self, request, id):
+        """ A method to download prescription. """
+
+        url = "http://localhost:8000/prescription/" + str(id) + "/"
+
+        # Path to wkhtmltopdf
+        path_wkhtmltopdf = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+        config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+
+        P = Prescription(id)
+        records = P._get_prescription_record()
+        email = records["email"]
+        patient_name = records["patient_name"]
+        pathologist_name = records["attending_physician"]
+        # Generate PDF from the URL
+        pdf_bytes = None
+
+        try:
+            # Generate PDF as bytes (not file on disk)
+            filename = f"prescription_{id}.pdf"
+            pdf_bytes = pdfkit.from_url(url, filename, configuration=config)
+            
+
+            # Check Internet First
+            e = Emailing()
+
+            message = f"""<h1>Hello, {patient_name} I hope this message finds you well.</h1>
+            <p>Attached is <b>the prescription</b>.</p><br><br>Regards,<br>{pathologist_name}"""
+
+            e.send_email(
+                to=[email],
+                subject="Prescription and Findings (Lymphoblastic / CNN)",
+                body="This is a plain text email.",
+                html=message,
+                attachments=[filename]
+            )
+            
+            # Send as downloadable file
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'attachment; filename="prescription_{id}.pdf"'
+            return response
+
+        except Exception as e:
+            print(e, 'is the exception.', type(e))
+            return redirect("patients_records")
+        
+        
     def home(self, request):
         """Renders the home page."""
        

@@ -10,6 +10,12 @@ HOME = (
 
 HOME.build()
 
+PRESCRIPTION = Builder().addPage("app/prescription.html").addTitle("prescription")
+PRESCRIPTION.build()
+
+PROFILE = Builder().addPage("app/profile.html").addTitle("profile")
+PROFILE.build()
+
 DATASETS = Builder().addPage("app/datasets.html").addTitle("datasets")
 DATASETS.build()
 

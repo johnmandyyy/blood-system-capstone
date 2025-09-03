@@ -192,51 +192,55 @@
 
         <hr class="my-4" />
 
-        <h1 class="display-6 fw-bold">
-            <i class="fa-solid fa-images"></i> Upload Image(s)
-        </h1>
+        <div hidden>
+            <h1 class="display-6 fw-bold">
+                <i class="fa-solid fa-images"></i> Upload Image(s)
+            </h1>
 
-        <p class="lead fw-bold text-muted">
-            Add Image(s) to Dataset
-        </p>
+            <p class="lead fw-bold text-muted">
+                Add Image(s) to Dataset
+            </p>
 
-        <div class="card mb-4">
-            <div class="card-body">
+            <div class="card mb-4">
+                <div class="card-body">
 
-                <h5 class="card-title text-muted">List(s) of Diseases that
-                    can be
-                    differentiated by the model itself.
-                </h5>
+                    <h5 class="card-title text-muted">List(s) of Diseases that
+                        can be
+                        differentiated by the model itself.
+                    </h5>
 
-                <h6 class="card-subtitle mb-2 text-muted">Here you can add a
-                    class/disease/severity that you want to be predicted
-                    later on.
-                </h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Here you can add a
+                        class/disease/severity that you want to be predicted
+                        later on.
+                    </h6>
 
-                <br>
+                    <br>
 
-                <label class="form-label mb-2">
-                    Select Disease: *
-                </label>
+                    <label class="form-label mb-2">
+                        Select Disease: *
+                    </label>
 
-                <select class="form-control mb-2">
-                    <option v-for="disease in lists.DISEASE">
-                        [[ disease.disease_name ]]
-                    </option>
-                </select>
+                    <select class="form-control mb-2">
+                        <option v-for="disease in lists.DISEASE">
+                            [[ disease.disease_name ]]
+                        </option>
+                    </select>
 
-                <div class="mb-3">
-                    <label class="form-label">Select Image:
-                        *</label>
-                    <input class="form-control" type="file" :disabled="true">
+                    <div class="mb-3">
+                        <label class="form-label">Select Image:
+                            *</label>
+                        <input class="form-control" type="file"
+                            :disabled="true">
+                    </div>
+
+                    <button class="btn btn-success w-100" :disabled="true">
+                        Upload File
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </button>
+
                 </div>
-
-                <button class="btn btn-success w-100" :disabled="true">
-                    Upload File
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                </button>
-
             </div>
+
         </div>
 
     </div>

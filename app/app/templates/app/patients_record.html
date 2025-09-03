@@ -119,7 +119,7 @@
                                     <td>[[ preds.notes ]]</td>
                                     <td>
                                         <button class="btn btn-primary"
-                                            disabled>
+                                            @click="downloadPrescription(preds)">
                                             <i class="fa-solid fa-download"></i>
                                             Download Result(s) / E-Prescription
                                         </button>
@@ -193,6 +193,10 @@ new Vue({
     },
     methods: {
         
+        async downloadPrescription(preds) {
+            window.location.href = '/download_prescription' + '/' + String(preds.id) + '/'
+            
+        },
         getUrlParameters() {
             const path = window.location.pathname; // "/patients-record/63/"
             const parts = path.split('/').filter(Boolean); // ['patients-record', '63']

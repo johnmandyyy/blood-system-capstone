@@ -3,6 +3,8 @@
 {% block content %}
 
 <div id="{{ obj_name }}">
+    {% include 'app/constants/universal_modal.html' %}
+
     <div class="row">
         <div class="col-lg-12">
 
@@ -46,6 +48,7 @@
                                             <span
                                                 v-if="pathologist.user.is_active === true">
                                                 <button class="btn btn-danger"
+                                                    :disabled="state.ACTIVATION_STATE"
                                                     @click="activate(pathologist.user)">Deactivate
                                                     <i
                                                         class="fa-solid fa-circle-xmark"></i></button>
@@ -53,7 +56,8 @@
 
                                             <span v-else>
                                                 <button class="btn btn-success"
-                                                    @click="activate(pathologist.user)">Activate
+                                                    @click="activate(pathologist.user)"
+                                                    :disabled="state.ACTIVATION_STATE">Activate
                                                     <i
                                                         class="fa-solid fa-circle-check"></i></button>
                                             </span>
@@ -129,7 +133,8 @@ new Vue({
         endpoints: {},
         info: { MESSAGE: '', TITLE: '' },
         state: {
-            'USER_ID': null
+            'USER_ID': null,
+            'ACTIVATION_STATE': false
         },
         props: {
             'USER': null
@@ -167,17 +172,41 @@ new Vue({
 
         async activate(user) {
             this.props.USER = user
+            let message = ""
             if (user.is_active === true) {
                 this.props.USER['is_active'] = false
+                message = "Your account has been deactivated."
             }
             else {
                 this.props.USER['is_active'] = true
+                message = "Your account has been activated."
             }
+
+            const csrftoken = getCookie("csrftoken");
+            axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+            
+            this.state.ACTIVATION_STATE = true
+            const emailResult = await axios.post("/api/send-email/", {
+                "to": this.props.USER['email'],
+                "subject": "Greeting(s) Account Activation",
+                "body": "Test Body",
+                "html": message,
+                "cc": null,
+                "bcc": null
+            })
+
+            
+            this.info.MESSAGE = "Changes were made to the user."
+            this.info.TITLE = "Info"
+            openModal('message_modal')
             
             this.state['USER_ID'] = user.id
             await universalPatch(this, 'GET_UPDATE_DESTROY', 
                 'USER', 'USER', 'USER', 
                 'USER_ID', 'USER')
+
+            this.state.ACTIVATION_STATE = false
+            
         },
 
         async updatePathologist(prop) {

@@ -1,8 +1,8 @@
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from datetime import datetime
 from app.logs.logging import Logger
 from app.constants import app_constants
-import inspect
 
 class TemplateBuilder:
     """A template builder class."""
@@ -84,6 +84,13 @@ class Builder:
 
         self.Page = self.instance.getProps()["page"]
         return self.instance
+    
+    # --------------------------------------------------------------------------------------------------------------- #
+    def render_string(self, request):
+        """ A method to render to string. """
+        
+        page = render_to_string(self.Page, self.Context, request)
+        return page
 
     # --------------------------------------------------------------------------------------------------------------- #
     def render_page(self, request):
@@ -92,7 +99,6 @@ class Builder:
         try:
             
             page = render(request, self.Page, self.Context)
-            
             Logger(
                 message="Loaded Page",
                 source=__name__,
@@ -127,4 +133,3 @@ class Builder:
             )
 
             return page
-

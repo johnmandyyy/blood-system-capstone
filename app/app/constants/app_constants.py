@@ -33,5 +33,6 @@ MODEL_NAME = 'xception_model.h5'
 SEG_MODEL_NAME = 'blood_cell_segmentor_xception.h5'
 EPOCHS = 5
 
-
-
+# Emailing
+SENDER="vagtote@gmail.com"
+PASSWORD="stinegpssrcgjfpa"
